@@ -37,9 +37,12 @@ jobs:
         if [ -d "assets" ]; then cp -r assets /tmp/full_project/; fi
         cd /tmp/full_project
         
-        # 确保assets目录存在（避免pubspec报错）
+        # 确保assets目录存在
         mkdir -p assets/images
         touch assets/images/.gitkeep
+        
+        # 更新Gradle版本
+        sed -i 's/gradle-7\..*-all.zip/gradle-8.0-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
         
         # 覆盖settings.gradle以使用正确的Kotlin版本
         cat > android/settings.gradle << 'GRADLE'
