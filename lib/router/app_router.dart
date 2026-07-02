@@ -54,7 +54,7 @@ final GoRouter appRouter = GoRouter(
       path: '/device/:id',
       name: 'device-detail',
       builder: (context, state) {
-        final id = int.parse(state.pathParameters['id']!);
+        final id = state.pathParameters['id']!;
         return DeviceDetailPage(id: id);
       },
     ),
@@ -62,7 +62,7 @@ final GoRouter appRouter = GoRouter(
       path: '/system/:id',
       name: 'system-detail',
       builder: (context, state) {
-        final id = int.parse(state.pathParameters['id']!);
+        final id = state.pathParameters['id']!;
         return SystemDetailPage(id: id);
       },
     ),

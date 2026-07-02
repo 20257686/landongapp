@@ -17,6 +17,7 @@ class ProductProvider with ChangeNotifier {
   List<Device> get devices => _devices;
   bool get devicesLoading => _devicesLoading;
   bool get devicesHasMore => _devicesHasMore;
+  bool get hasMoreDevices => _devicesHasMore;
 
   // 系统列表
   List<ProductSystem> _systems = [];
@@ -28,9 +29,19 @@ class ProductProvider with ChangeNotifier {
   List<ProductSystem> get systems => _systems;
   bool get systemsLoading => _systemsLoading;
   bool get systemsHasMore => _systemsHasMore;
+  bool get hasMoreSystems => _systemsHasMore;
+
+  // 详情
+  Device? _currentDevice;
+  ProductSystem? _currentSystem;
+  bool _detailLoading = false;
+
+  Device? get currentDevice => _currentDevice;
+  ProductSystem? get currentSystem => _currentSystem;
+  bool get isLoading => _devicesLoading || _systemsLoading || _detailLoading;
 
   // 当前选中的Tab
-  int _currentTab = 0; // 0: 系统, 1: 设备
+  int _currentTab = 0;
   int get currentTab => _currentTab;
 
   void setCurrentTab(int index) {
@@ -67,8 +78,7 @@ class ProductProvider with ChangeNotifier {
       }
 
       _devicesPage++;
-      _devicesHasMore = result.items.length >= 20 &&
-          _devices.length < result.total;
+      _devicesHasMore = result.items.length >= 20 && _devices.length < result.total;
     } catch (e) {
       debugPrint('加载设备列表失败: $e');
     } finally {
@@ -76,6 +86,9 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // 加载更多设备
+  Future<void> loadMoreDevices() => loadDevices();
 
   // 加载系统列表
   Future<void> loadSystems({bool refresh = false}) async {
@@ -105,12 +118,44 @@ class ProductProvider with ChangeNotifier {
       }
 
       _systemsPage++;
-      _systemsHasMore = result.items.length >= 20 &&
-          _systems.length < result.total;
+      _systemsHasMore = result.items.length >= 20 && _systems.length < result.total;
     } catch (e) {
       debugPrint('加载系统列表失败: $e');
     } finally {
       _systemsLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // 加载更多系统
+  Future<void> loadMoreSystems() => loadSystems();
+
+  // 加载设备详情
+  Future<void> loadDeviceDetail(int id) async {
+    _detailLoading = true;
+    notifyListeners();
+
+    try {
+      _currentDevice = await _service.getDeviceDetail(id);
+    } catch (e) {
+      debugPrint('加载设备详情失败: $e');
+    } finally {
+      _detailLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // 加载系统详情
+  Future<void> loadSystemDetail(int id) async {
+    _detailLoading = true;
+    notifyListeners();
+
+    try {
+      _currentSystem = await _service.getSystemDetail(id);
+    } catch (e) {
+      debugPrint('加载系统详情失败: $e');
+    } finally {
+      _detailLoading = false;
       notifyListeners();
     }
   }

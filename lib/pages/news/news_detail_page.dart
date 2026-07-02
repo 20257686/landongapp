@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class NewsDetailPage extends StatefulWidget {
-  final String id;
-  final String url;
+  final int id;
+  final String title;
 
-  const NewsDetailPage({super.key, required this.id, required this.url});
+  const NewsDetailPage({super.key, required this.id, required this.title});
 
   @override
   State<NewsDetailPage> createState() => _NewsDetailPageState();
@@ -15,11 +14,16 @@ class NewsDetailPage extends StatefulWidget {
 class _NewsDetailPageState extends State<NewsDetailPage> {
   late WebViewController _controller;
   bool _isLoading = true;
-  String _title = '资讯详情';
+  late String _title;
 
   @override
   void initState() {
     super.initState();
+    _title = widget.title.isNotEmpty ? widget.title : '资讯详情';
+    
+    // 构造资讯详情URL
+    final url = 'http://www.landongcn.com/content/?${widget.id}.html';
+    
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -37,7 +41,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(widget.url));
+      ..loadRequest(Uri.parse(url));
   }
 
   @override
