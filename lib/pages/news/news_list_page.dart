@@ -97,8 +97,16 @@ class _NewsListPageState extends State<NewsListPage> with SingleTickerProviderSt
   }
 
   Widget _buildNewsItem(Article article) {
+    // 格式化日期
+    String dateStr = '';
+    if (article.publishedAt != null) {
+      dateStr = '${article.publishedAt!.year}-${article.publishedAt!.month.toString().padLeft(2, '0')}-${article.publishedAt!.day.toString().padLeft(2, '0')}';
+    } else if (article.createdAt != null) {
+      dateStr = '${article.createdAt!.year}-${article.createdAt!.month.toString().padLeft(2, '0')}-${article.createdAt!.day.toString().padLeft(2, '0')}';
+    }
+
     return GestureDetector(
-      onTap: () => context.push('/news/${article.id}?url=${Uri.encodeComponent(article.url)}'),
+      onTap: () => context.push('/news/${article.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
@@ -130,18 +138,19 @@ class _NewsListPageState extends State<NewsListPage> with SingleTickerProviderSt
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    article.summary,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[600],
+                  if (article.summary != null && article.summary!.isNotEmpty)
+                    Text(
+                      article.summary!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 8),
                   Text(
-                    article.date,
+                    dateStr,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[400],
@@ -151,11 +160,11 @@ class _NewsListPageState extends State<NewsListPage> with SingleTickerProviderSt
               ),
             ),
             const SizedBox(width: 12),
-            if (article.image.isNotEmpty)
+            if (article.image != null && article.image!.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: CachedNetworkImage(
-                  imageUrl: article.image,
+                  imageUrl: article.image!,
                   width: 90,
                   height: 70,
                   fit: BoxFit.cover,

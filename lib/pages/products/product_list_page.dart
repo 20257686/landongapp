@@ -95,7 +95,7 @@ class _ProductListPageState extends State<ProductListPage> with SingleTickerProv
                     children: [
                       ClipRRect(
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                        child: (system.heroImage != null && system.heroImage.isNotEmpty)
+                        child: (system.heroImage != null && system.heroImage!.isNotEmpty)
                             ? CachedNetworkImage(
                                 imageUrl: system.heroImage!,
                                 height: 180,
