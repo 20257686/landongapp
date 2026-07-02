@@ -26,15 +26,32 @@ jobs:
         channel: 'stable'
         cache: true
     
+    - name: Create full Flutter project
+      run: |
+        # 创建完整的Flutter项目（包含android目录）
+        flutter create --org cn.landong --project-name landong_app /tmp/full_project
+        # 复制我们的业务代码进去
+        cp -r lib /tmp/full_project/
+        cp pubspec.yaml /tmp/full_project/
+        if [ -d "assets" ]; then cp -r assets /tmp/full_project/; fi
+        cd /tmp/full_project
+        # 确保assets目录存在（避免pubspec报错）
+        mkdir -p assets/images
+        touch assets/images/.gitkeep
+    
     - name: Get dependencies
-      run: flutter pub get
+      run: |
+        cd /tmp/full_project
+        flutter pub get
     
     - name: Build APK (release)
-      run: flutter build apk --release
+      run: |
+        cd /tmp/full_project
+        flutter build apk --release
     
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: landong-app-release
-        path: build/app/outputs/flutter-apk/app-release.apk
+        path: /tmp/full_project/build/app/outputs/flutter-apk/app-release.apk
         retention-days: 30
