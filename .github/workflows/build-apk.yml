@@ -31,10 +31,6 @@ jobs:
         # 创建完整的Flutter项目（包含android目录）
         flutter create --org cn.landong --project-name landong_app /tmp/full_project
         
-        # 更新Kotlin版本（解决兼容性问题）
-        sed -i "s/kotlin-android\"/kotlin-android\" version \"1.9.24\"/" /tmp/full_project/android/settings.gradle
-        sed -i "s/ext.kotlin_version = .*/ext.kotlin_version = '1.9.24'/" /tmp/full_project/android/build.gradle 2>/dev/null || true
-        
         # 复制我们的业务代码进去
         cp -r lib /tmp/full_project/
         cp pubspec.yaml /tmp/full_project/
@@ -44,6 +40,35 @@ jobs:
         # 确保assets目录存在（避免pubspec报错）
         mkdir -p assets/images
         touch assets/images/.gitkeep
+        
+        # 覆盖settings.gradle以使用正确的Kotlin版本
+        cat > android/settings.gradle << 'GRADLE'
+        pluginManagement {
+            def flutterSdkPath = {
+                def properties = new Properties()
+                file("local.properties").withInputStream { properties.load(it) }
+                def flutterSdkPath = properties.getProperty("flutter.sdk")
+                assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+                return flutterSdkPath
+            }()
+
+            includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+
+        plugins {
+            id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+            id "com.android.application" version "8.1.0" apply false
+            id "org.jetbrains.kotlin.android" version "1.9.24" apply false
+        }
+
+        include ":app"
+        GRADLE
     
     - name: Get dependencies
       run: |
